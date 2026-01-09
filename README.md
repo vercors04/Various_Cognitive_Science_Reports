@@ -1,3 +1,4 @@
 # Rapports_sciences_cognitives_divers
-Dans ce dossier sont rangé plusieurs rapports de plusieurs cours différents de ma licence MIASHS, autour de sciences cognitives. 
+Ces dossiers ne sont qu'une partie des projets réalisées le longs de ma licence.
 Les rapports ne comprennet généralement pas les énoncés.
+Un dossier contient également un projet d'informatique en Prolog.
