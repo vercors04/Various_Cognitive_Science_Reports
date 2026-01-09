@@ -1,0 +1,87 @@
+---
+title: "Memory Practicum Notebook"
+#Specify your names here:
+author: "Francesco Fumagalli - u704513 | Chris Martin - u653436 | Saule Minkeviciute - u925272 | Emile Pundzeviciute - u222506 | Xavier Krsinar - u688637"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Fill in the data
+
+For every participant in every condition calculate how many words were correctly recalled. Fill in these numbers in the corresponding variables. For example, if participant_1 has recalled 15 words in the FF condition and participant_2 10 words in this same condition, then fill in FF <- c(15,10). 
+
+After filling all the variables in, run the chunk.
+
+```{r}
+#THIS CONTAINS SOME SIMULATED DATA FOR NOW, DELETE LATER!!!
+DD <- c(6,5)
+FF <- c(13,11)
+DF <- c(7,3)
+FD <- c(10,10)
+```
+
+## Format and Explore the Data
+
+In the original experiment the researchers presented the mean recall scores and their standard deviation per condition. You will now reproduce that table.
+
+First we make a data structure containing the information about conditions and the scores of each participant in each condition.
+
+```{r}
+scores <- c(DD,DF,FD,FF)
+learning <- c(rep('D',4),rep('F',4))
+recall <- rep(c(rep('D',2),rep('F',2)),2)
+
+results <- data.frame(learning,recall,scores)
+results
+```
+
+Let's construct a table like in the original experiment.
+```{r}
+aggr_results <- aggregate(results$scores,by=list(learning=results$learning,recall=results$recall),FUN=mean)
+aggr_results$SD <- aggregate(results$scores,by=list(learning=results$learning,recall=results$recall),FUN=sd)$x
+names(aggr_results)[3] <- 'mean'
+aggr_results
+```
+
+This table doesn't give us any reason to talk about statistical significance yet. However, we can observe some trends here and formulate a hypothesis based on this observation. 
+
+You will now perform statistical tests. 
+
+## Statistical Analysis
+
+We first perform a paired sample t-test. For that we combine all the scores for the conditions where the recall environment was the same as the learning environment into one variable, and those where the conditions were different into another variable. Then we run the t-test.
+
+```{r}
+same <- c(DD,FF)
+dif <- c(DF,FD)
+t.test(x=same,y=dif,paired=T)
+```
+
+To interpret the results: if the true mean difference is not equal to 0, the p-value will be very low and zero would not be included in the confidence interval. The function also gives the mean difference. It's an absolute difference, you can't see which condition was better for your memory from this test. 
+
+In order to see which condition was better we perform one-sided t-test:
+
+```{r}
+t.test(x=same,y=dif,alternative='greater',paired=T)
+```
+
+To interpret: alternative = "greater" is the alternative that x has a larger mean than y. "Alternative" means alternative hypothesis. So the higher the p-value for the alternative="greater", the more likely the result has occurred under the null hypothesis, so the x-variable doesn't have a mean that is greater than y-variable. 
+
+We could also look at the interaction term in a regression model to see if maybe just learning in some particular environment is better for your memory, or only the interaction between the environments makes a difference.
+
+```{r}
+mod <- lm(scores~learning*recall,data=results)
+summary(mod)
+```
+To interpret the results: look if the learning environment by itself or the recall environment by itself has significant influence on the number of words recalled. For that look at the significance of the results for learningF and recallF (R automatically picks only one of the categories, but it doesn't matter, because the result represents the significance for the variable, not for the category). If this influence is statistically significant it means that at least in your sample the recall was statistically better in some particular environment, or due to learning in some particular environment (if only learningF is significant) or recalling in some particular environment (if only recallF is significant).
+
+Then look at the significance of the interaction term (learningF:recallF). If it has a significant influence on the outcome variable it means that the interaction between the environments (whether you learned in the same or in the different environment) is significant. Notice that it could be the case even when the individual variables did not have significant predictive power. 
+
+You can now perform ANOVA for this linear regression model you created, to obtain more information on the goodness of the fit of the model:
+
+```{r}
+summary(aov(mod))
+```
