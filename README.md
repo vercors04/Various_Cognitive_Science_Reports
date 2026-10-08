@@ -1,4 +1,4 @@
-# Rapports_sciences_cognitives_divers
+# Various_Cognitive_Science_Reports
 
 Coursework from the MIASHS bachelor's degree (cognitive sciences track), Université Grenoble Alpes, 2021–2024.
 
